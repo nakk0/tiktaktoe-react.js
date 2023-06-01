@@ -1,3 +1,8 @@
+little project to learn how to use React.js with their own tutorial.
+won't run if you try to compile it and run with `npm install` and `npm start`, not really sure why...
+used [this link](https://codesandbox.io/s/modest-hodgkin-t7gti6?file=/App.js) to program and test it, as it was what the tutorial made you use, and then used File > Export to zip to save a version and upload it to github.
+the rest of the README under this line is the default README that was created with the original project.
+***
 This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
 
 Below you will find some information on how to perform common tasks.<br>
