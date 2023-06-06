@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function Square({ value, onSquareClick, winState }) {
   return (
     <button
-      className="square"
+      className={"square"}
       onClick={onSquareClick}
       style={winState ? { background: "lime" } : {}}
     >
@@ -12,14 +12,7 @@ function Square({ value, onSquareClick, winState }) {
   );
 }
 
-export function Board({
-  xIsNext,
-  squares,
-  onPlay,
-  onReset,
-  onWin,
-  winSquares
-}) {
+function Board({ xIsNext, squares, onPlay, onReset, onWin, winSquares }) {
   function handleClick(i) {
     if (calculateWinner(squares) || squares[i]) {
       return;
@@ -55,7 +48,21 @@ export function Board({
     <>
       <div className="status">{status}</div>
       {board}
-      <button onClick={onReset}>reset</button>
+      <button className="cool-button" onClick={onReset}>
+        reset
+      </button>
+    </>
+  );
+}
+
+function PointsTalbe({ points, onReset }) {
+  return (
+    <>
+      <p>X: {points.X}</p>
+      <p>O: {points.O}</p>
+      <button onClick={onReset} className="cool-button">
+        reset
+      </button>
     </>
   );
 }
@@ -63,9 +70,16 @@ export function Board({
 export default function Game() {
   const [currentMove, setCurrentMove] = useState(0);
   const xIsNext = currentMove % 2 === 0;
+
   const [history, setHistory] = useState([Array(9).fill(null)]);
   const currentSquares = history[currentMove];
+  const winnerPositions = calculateWinner(currentSquares);
+  const winner = winnerPositions ? currentSquares[winnerPositions[0]] : null;
+
   const [clickedReverse, setClickedReverse] = useState(false);
+  const [points, setPoints] = useState({ X: 0, O: 0 });
+
+  const [newRound, setNewRound] = useState(true);
 
   function handlePlay(nextSquares) {
     const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
@@ -90,10 +104,11 @@ export default function Game() {
         return (
           <li key={move}>
             <button
+              className="cool-button"
               onClick={() => jumpTo(move)}
               style={
                 currentMove === move
-                  ? { background: "red", color: "white" }
+                  ? { background: "lightblue", color: "black" }
                   : {}
               }
             >
@@ -107,26 +122,49 @@ export default function Game() {
     return makeMoves(false).reverse();
   }
 
-  function handleReset() {
+  function handleBoardReset() {
+    setNewRound(true);
     setHistory([Array(9).fill(null)]);
     setCurrentMove(0);
   }
 
+  function handlePointReset() {
+    setPoints({ X: 0, O: 0 });
+    handleBoardReset();
+  }
+
+  useEffect(() => {
+    if (winner && newRound) {
+      setNewRound(false);
+      setPoints((prevPoints) => ({
+        ...prevPoints,
+        [winner]: prevPoints[winner] + 1
+      }));
+    }
+  }, [winner, newRound]);
+
   function handleWin() {
-    const winner = calculateWinner(currentSquares);
-    if (winner) {
-      return `Winner: ${currentSquares[winner[0]]}`;
+    if (winnerPositions) {
+      return `Winner: ${winner}`;
     } else if (!currentSquares.includes(null)) {
-      return `it's a tie!`;
+      return `It's a tie!`;
     } else {
-      return `it's ${xIsNext ? "X" : "O"}'s turn`;
+      return `It's ${xIsNext ? "X" : "O"}'s turn`;
     }
   }
 
-  function hadleReverse() {
+  function handleReverse() {
     setClickedReverse(!clickedReverse);
   }
 
+  function handleHistoryScroll(right) {
+    if (right) jumpTo(currentMove === history.length - 1 ? 0 : currentMove + 1);
+    if (!right)
+      jumpTo(currentMove === 0 ? history.length - 1 : currentMove - 1);
+  }
+
+  const left = `<--`;
+  const right = `-->`;
   return (
     <div className="game">
       <div className="game-board">
@@ -134,14 +172,32 @@ export default function Game() {
           xIsNext={xIsNext}
           squares={currentSquares}
           onPlay={handlePlay}
-          onReset={handleReset}
+          onReset={handleBoardReset}
           onWin={handleWin}
           winSquares={calculateWinner(currentSquares)}
         />
-        <button onClick={() => hadleReverse()}>reverse</button>
+        <button className="cool-button" onClick={handleReverse}>
+          reverse
+        </button>
+        <br></br>
+        <button
+          className="cool-button"
+          onClick={() => handleHistoryScroll(clickedReverse)}
+        >
+          {left}
+        </button>
+        <button
+          className="cool-button"
+          onClick={() => handleHistoryScroll(!clickedReverse)}
+        >
+          {right}
+        </button>
       </div>
       <div className="game-info">
         <ul>{makeMoves(clickedReverse)}</ul>
+      </div>
+      <div className="game-info">
+        <PointsTalbe points={points} onReset={handlePointReset} />
       </div>
     </div>
   );
