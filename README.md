@@ -1,6 +1,6 @@
 little project to learn how to use React.js with their own tutorial.
 
-won't run if you try to compile it and run with `npm install` and `npm start`, not really sure why...
+won't run if you try to compile it and run with `npm install` and `npm start`. Can't be bothered to fix it.
 
 used [this link](https://codesandbox.io/s/modest-hodgkin-t7gti6?file=/App.js) to program and test it, as it was what the tutorial made you use, and then used File > Export to zip to save a version and upload it to github.
 
